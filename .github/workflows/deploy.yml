@@ -1,23 +1,23 @@
 name: Deploy to GitHub Pages
 
+# Builds the Expo web export and publishes it to the `gh-pages` branch, which
+# GitHub Pages serves at https://sampsod-home.github.io/chorebank/.
+# (Pages "Source" is set to: Deploy from branch → gh-pages / root.)
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Allow the workflow to publish to Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# One deployment at a time; don't cancel an in-progress run
 concurrency:
-  group: pages
+  group: pages-deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,18 +36,13 @@ jobs:
       - name: Disable Jekyll (serve _expo/ assets as-is)
         run: touch dist/.nojekyll
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish to gh-pages
+        run: |
+          cd dist
+          git init -q
+          git checkout -q -b gh-pages
+          git add -A
+          git -c user.name="github-actions[bot]" \
+              -c user.email="github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Deploy ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
