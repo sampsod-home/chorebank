@@ -5,25 +5,25 @@ import { fmt } from '../lib/domain';
 // ── Seed data (verbatim from the prototype) ──────────────────────────────────
 const SEED: DomainState = {
   kids: [
-    { id: 'thomas', name: 'Thomas', age: 12, balance: 14.25, streak: 6, lifetime: 212.75, week: [2.5, 3.25, 1.5, 4, 2.75, 0, 0], limit: 12 },
-    { id: 'oliver', name: 'Oliver', age: 8, balance: 6.5, streak: 3, lifetime: 88.25, week: [1.25, 2, 0.75, 2.25, 1.5, 0, 0], limit: 8 },
+    { id: 'kid1', name: 'Sam', age: 12, balance: 14.25, streak: 6, lifetime: 212.75, week: [2.5, 3.25, 1.5, 4, 2.75, 0, 0], limit: 12 },
+    { id: 'kid2', name: 'Max', age: 8, balance: 6.5, streak: 3, lifetime: 88.25, week: [1.25, 2, 0.75, 2.25, 1.5, 0, 0], limit: 8 },
   ],
   chores: [
-    { id: 1, kid: 'thomas', title: 'Unload the dishwasher', value: 0.75, days: [0, 1, 2, 3, 4], recurring: true, status: 'todo', desc: 'Everything out of the racks and into the cupboards before school.', steps: ['Plates & bowls in the low cupboard', 'Glasses on the middle shelf', 'Cutlery sorted in the drawer'] },
-    { id: 2, kid: 'thomas', title: 'Take out trash & recycling', value: 1, days: [3], recurring: true, status: 'todo', desc: 'Both bins to the curb — pickup is Friday morning.', steps: ['Tie the kitchen bag', 'Blue bin: paper & cans', 'New bag in the kitchen bin'] },
-    { id: 3, kid: 'thomas', title: 'Walk Biscuit around the block', value: 1.5, days: [1, 3, 5], recurring: true, status: 'todo', desc: 'Once around the long block. Bring bags!', steps: ['Leash and two bags', 'Refill the water bowl when back'] },
-    { id: 4, kid: 'oliver', title: 'Make your bed', value: 0.5, days: [0, 1, 2, 3, 4], recurring: true, status: 'done', desc: 'Pillow on top, dino on the pillow.', steps: ['Pull the duvet flat', 'Pillow at the top'] },
-    { id: 5, kid: 'oliver', title: 'Feed Biscuit breakfast', value: 0.75, days: [0, 1, 2, 3, 4, 5, 6], recurring: true, status: 'todo', desc: 'One scoop, fresh water.', steps: ['One level scoop of kibble', 'Rinse and refill the water bowl'] },
-    { id: 6, kid: 'oliver', title: 'Tidy the toy shelf', value: 1, days: [2], recurring: true, status: 'pending', desc: 'Lego in the lego tub, books standing up.', steps: ['Lego in the tub', 'Books spine-out', 'Floor clear'] },
+    { id: 1, kid: 'kid1', title: 'Unload the dishwasher', value: 0.75, days: [0, 1, 2, 3, 4], recurring: true, status: 'todo', desc: 'Everything out of the racks and into the cupboards before school.', steps: ['Plates & bowls in the low cupboard', 'Glasses on the middle shelf', 'Cutlery sorted in the drawer'] },
+    { id: 2, kid: 'kid1', title: 'Take out trash & recycling', value: 1, days: [3], recurring: true, status: 'todo', desc: 'Both bins to the curb — pickup is Friday morning.', steps: ['Tie the kitchen bag', 'Blue bin: paper & cans', 'New bag in the kitchen bin'] },
+    { id: 3, kid: 'kid1', title: 'Walk Biscuit around the block', value: 1.5, days: [1, 3, 5], recurring: true, status: 'todo', desc: 'Once around the long block. Bring bags!', steps: ['Leash and two bags', 'Refill the water bowl when back'] },
+    { id: 4, kid: 'kid2', title: 'Make your bed', value: 0.5, days: [0, 1, 2, 3, 4], recurring: true, status: 'done', desc: 'Pillow on top, dino on the pillow.', steps: ['Pull the duvet flat', 'Pillow at the top'] },
+    { id: 5, kid: 'kid2', title: 'Feed Biscuit breakfast', value: 0.75, days: [0, 1, 2, 3, 4, 5, 6], recurring: true, status: 'todo', desc: 'One scoop, fresh water.', steps: ['One level scoop of kibble', 'Rinse and refill the water bowl'] },
+    { id: 6, kid: 'kid2', title: 'Tidy the toy shelf', value: 1, days: [2], recurring: true, status: 'pending', desc: 'Lego in the lego tub, books standing up.', steps: ['Lego in the tub', 'Books spine-out', 'Floor clear'] },
     { id: 7, kid: 'open', title: 'Wash the car', value: 3, days: [5], recurring: false, status: 'todo', desc: 'Bucket, sponge, and the good soap from the garage.', steps: ['Rinse first', 'Soap top to bottom', 'Dry with the gray towels'] },
     { id: 8, kid: 'open', title: 'Weed the garden bed', value: 2.5, days: [], recurring: false, status: 'todo', desc: 'The front bed only — roots and all.', steps: ['Gloves are in the shed', 'Weeds in the green bin'] },
     { id: 9, kid: 'open', title: 'Vacuum the stairs', value: 1.5, days: [], recurring: false, status: 'todo', desc: 'Top to bottom with the handheld.', steps: ['Corners count!'] },
   ],
   activity: [
-    { text: 'Daniel paid Oliver for “Make your bed”', amt: '+$0.50', time: '8:12 AM' },
-    { text: 'Thomas cashed out “Movie night pick”', amt: '−$4.00', time: 'Yesterday' },
+    { text: 'Alex paid Max for “Make your bed”', amt: '+$0.50', time: '8:12 AM' },
+    { text: 'Sam cashed out “Movie night pick”', amt: '−$4.00', time: 'Yesterday' },
   ],
-  parents: [{ id: 'daniel', name: 'Daniel', phone: '', email: '' }],
+  parents: [{ id: 'parent1', name: 'Alex', phone: '', email: '' }],
   payDay: 4,
   payFreq: 'Weekly',
   payMonthDay: 1,
@@ -125,7 +125,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...s,
         chores: s.chores.map((x) => (x.id === id ? { ...x, status: 'done' } : x)),
         activity: [
-          { text: 'Daniel paid ' + kid.name + ' for “' + c.title + '”', amt: '+' + fmt(c.value, s.currency), time: 'Just now' },
+          { text: (s.parents[0]?.name ?? 'Parent') + ' paid ' + kid.name + ' for “' + c.title + '”', amt: '+' + fmt(c.value, s.currency), time: 'Just now' },
           ...s.activity,
         ],
       }));

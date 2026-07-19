@@ -10,11 +10,11 @@ type Freq = 'Daily' | 'Weekly' | 'Monthly';
 const VALUE_PRESETS = [0.5, 1, 2, 5];
 const TIMES = ['Morning', 'Afternoon', 'Evening'];
 
-function initFrom(c: Chore | null) {
+function initFrom(c: Chore | null, allKidIds: string[]) {
   if (!c) {
     return {
       assignMode: 'assign' as 'assign' | 'grabs',
-      who: ['thomas', 'oliver'],
+      who: allKidIds,
       title: '',
       desc: '',
       active: true,
@@ -58,7 +58,7 @@ function initFrom(c: Chore | null) {
 
 export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: () => void }) {
   const store = useStore();
-  const [f, setF] = useState(() => initFrom(initial));
+  const [f, setF] = useState(() => initFrom(initial, store.kids.map((k) => k.id)));
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((p) => ({ ...p, [k]: v }));
   const toggleIn = (k: 'who' | 'days' | 'monthDays' | 'times', v: never) =>
     setF((p) => ({ ...p, [k]: (p[k] as any[]).includes(v) ? (p[k] as any[]).filter((x) => x !== v) : [...(p[k] as any[]), v] }));
