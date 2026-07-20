@@ -4,7 +4,8 @@ import { colors, radius, space } from '../../theme';
 import { useStore, ChoreDraft } from '../../store/store';
 import { Chore } from '../../lib/types';
 import { DAYS, fmt, formatDate, planned } from '../../lib/domain';
-import { Button, Chip, Field, Hr, Input, SegBar, Toggle, Txt } from '../../components/ui';
+import { Button, Chip, Field, Hr, IconButton, Input, SegBar, Toggle, Txt } from '../../components/ui';
+import { Icon } from '../../components/Icon';
 
 type Freq = 'Daily' | 'Weekly' | 'Monthly';
 const VALUE_PRESETS = [0.5, 1, 2, 5];
@@ -136,8 +137,12 @@ export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View style={styles.head}>
-        <Txt variant="h4">{editing ? 'Edit chore' : 'New chore'}</Txt>
-        <Button title="Cancel" variant="ghost" minHeight={32} style={{ marginLeft: 'auto' }} onPress={onDone} />
+        <Txt variant="h4" style={{ flex: 1 }}>
+          {editing ? 'Edit chore' : 'New chore'}
+        </Txt>
+        <IconButton onPress={onDone} accessibilityLabel="Close">
+          <Icon name="x" size={20} color={colors.text} />
+        </IconButton>
       </View>
       <Txt muted style={{ fontSize: 12.5, marginBottom: space[4] }}>
         {isGrabs ? 'Posts to the marketplace — kids pick it up from their iPad for extra money.' : 'It lands on the kids’ iPad instantly.'}
@@ -192,10 +197,12 @@ export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: 
         <Input placeholder="Enter chore description" value={f.desc} onChangeText={(v) => set('desc', v)} multiline />
       </Field>
 
-      {/* Active */}
-      <View style={styles.toggleRow}>
-        <Text style={styles.toggleLabel}>Active</Text>
-        <Toggle value={f.active} onValueChange={(v) => set('active', v)} />
+      {/* Active — its own small card */}
+      <View style={styles.activeCard}>
+        <View style={styles.toggleRow}>
+          <Text style={styles.toggleLabel}>Active</Text>
+          <Toggle value={f.active} onValueChange={(v) => set('active', v)} />
+        </View>
       </View>
 
       {/* Schedule card */}
@@ -349,7 +356,7 @@ function PaymentOption({ title, body, selected, disabled, onPress }: { title: st
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: space[4] + 4, paddingTop: space[4] },
-  head: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginBottom: 4 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
   segChip: { borderRadius: 0, minHeight: 44 },
   segDivide: { borderLeftWidth: 1, borderLeftColor: colors.divider },
   kidAvatar: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
@@ -359,6 +366,7 @@ const styles = StyleSheet.create({
   kidLabel: { fontFamily: 'Archivo_800ExtraBold', fontSize: 13, color: colors.text },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 0 },
   toggleLabel: { flex: 1, fontFamily: 'Archivo_800ExtraBold', fontSize: 15, color: colors.text },
+  activeCard: { backgroundColor: colors.surface, borderRadius: 14, paddingVertical: space[3], paddingHorizontal: space[4], marginBottom: 14 },
   schedCard: { backgroundColor: colors.surface, borderRadius: 14, padding: space[4], marginBottom: 14, gap: 14 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   checkbox: { width: 18, height: 18, borderWidth: 1.5, borderColor: colors.divider, borderRadius: 4, alignItems: 'center', justifyContent: 'center' },

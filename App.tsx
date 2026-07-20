@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,7 +11,7 @@ import {
   Archivo_800ExtraBold,
 } from '@expo-google-fonts/archivo';
 
-import { colors } from './theme';
+import { colors, radius, shadow } from './theme';
 import { StoreProvider } from './store/store';
 import { TopBar } from './components/TopBar';
 import { TabBar } from './components/TabBar';
@@ -22,11 +22,31 @@ import { PaydayScreen } from './screens/PaydayScreen';
 import { FamilyScreen } from './screens/FamilyScreen';
 
 const Tab = createBottomTabNavigator();
+const isWeb = Platform.OS === 'web';
+
+// iPhone dimensions from the prototype's device frame (402 × 874).
+const PHONE_W = 402;
+const PHONE_H = 874;
 
 const navTheme = {
   ...DefaultTheme,
   colors: { ...DefaultTheme.colors, background: colors.bg, card: colors.bg, border: colors.divider },
 };
+
+/**
+ * On web, constrain the app to an iPhone-sized column centered on a backdrop
+ * (RN Web otherwise stretches to the full window). On a real device this is a
+ * plain full-screen flex container.
+ */
+function DeviceFrame({ children }: { children: React.ReactNode }) {
+  const { height } = useWindowDimensions();
+  if (!isWeb) return <View style={styles.root}>{children}</View>;
+  return (
+    <View style={styles.backdrop}>
+      <View style={[styles.phone, { height: Math.min(height - 32, PHONE_H) }, shadow.lg]}>{children}</View>
+    </View>
+  );
+}
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -41,7 +61,7 @@ export default function App() {
     <SafeAreaProvider>
       <StoreProvider>
         <StatusBar style="dark" />
-        <View style={styles.root}>
+        <DeviceFrame>
           <NavigationContainer theme={navTheme}>
             <TopBar />
             <Tab.Navigator
@@ -55,7 +75,7 @@ export default function App() {
             </Tab.Navigator>
           </NavigationContainer>
           <Toast />
-        </View>
+        </DeviceFrame>
       </StoreProvider>
     </SafeAreaProvider>
   );
@@ -63,4 +83,13 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
+  // web-only
+  backdrop: { flex: 1, backgroundColor: colors.neutral[300], alignItems: 'center', justifyContent: 'center' },
+  phone: {
+    width: PHONE_W,
+    maxWidth: '100%',
+    backgroundColor: colors.bg,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
 });

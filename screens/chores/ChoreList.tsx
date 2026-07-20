@@ -1,10 +1,11 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, space } from '../../theme';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { colors, space } from '../../theme';
 import { useStore } from '../../store/store';
 import { choreIcon, schedule, valueLabel } from '../../lib/domain';
 import { Icon, iconBgColor } from '../../components/Icon';
 import { IconButton, Tag, Txt } from '../../components/ui';
+import { KebabMenu } from '../../components/Menu';
 
 export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEdit: (id: number) => void; onDelete: (id: number) => void }) {
   const { chores, kids, currency } = useStore();
@@ -34,9 +35,11 @@ export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEd
               <View style={[styles.iconTile, { backgroundColor: iconBgColor(ic.bgKey) }]}>
                 <Icon name={ic.name as any} size={22} color={colors.white} />
               </View>
-              <View style={{ flex: 1, gap: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={styles.title}>{c.title}</Text>
+              <View style={styles.mid}>
+                <View style={styles.titleLine}>
+                  <Text style={styles.title} numberOfLines={1}>
+                    {c.title}
+                  </Text>
                   {inactive && <Tag variant="neutral">Inactive</Tag>}
                 </View>
                 <Text style={styles.sub}>
@@ -45,14 +48,12 @@ export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEd
               </View>
               <View style={styles.rightCol}>
                 <Text style={styles.value}>{valueLabel(c, currency)}</Text>
-                <View style={{ flexDirection: 'row', gap: 2 }}>
-                  <IconButton size={28} onPress={() => onEdit(c.id)} accessibilityLabel="Edit">
-                    <Icon name="edit" size={14} color={colors.text} />
-                  </IconButton>
-                  <IconButton size={28} onPress={() => onDelete(c.id)} accessibilityLabel="Remove">
-                    <Icon name="trash" size={14} color={colors.neutral[600]} />
-                  </IconButton>
-                </View>
+                <KebabMenu
+                  items={[
+                    { label: 'Edit', onPress: () => onEdit(c.id) },
+                    { label: 'Remove', destructive: true, onPress: () => onDelete(c.id) },
+                  ]}
+                />
               </View>
             </View>
           );
@@ -69,17 +70,20 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
-    padding: 10,
-    paddingRight: 12,
+    paddingVertical: 10,
+    paddingLeft: 10,
+    paddingRight: 4,
     marginBottom: 8,
     backgroundColor: colors.surface,
     borderRadius: 14,
   },
   iconTile: { width: 40, height: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: 'Archivo_600SemiBold', fontSize: 14, color: colors.text },
-  sub: { fontFamily: 'Archivo_400Regular', fontSize: 11, color: colors.neutral[600] },
-  rightCol: { alignItems: 'flex-end', alignSelf: 'flex-start', gap: 6 },
+  mid: { flex: 1, gap: 2, paddingTop: 1 },
+  titleLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  title: { flex: 1, fontFamily: 'Archivo_600SemiBold', fontSize: 14, color: colors.text },
+  rightCol: { alignItems: 'flex-end', gap: 2, paddingTop: 1 },
   value: { fontFamily: 'Archivo_800ExtraBold', fontSize: 15, color: colors.accentRamp[700] },
+  sub: { fontFamily: 'Archivo_400Regular', fontSize: 11, color: colors.neutral[600] },
 });

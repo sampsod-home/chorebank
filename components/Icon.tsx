@@ -11,6 +11,8 @@ export type IconName =
   | 'edit'
   | 'trash'
   | 'check'
+  | 'more'
+  | 'x'
   | 'arrow'
   | 'utensils'
   | 'shirt'
@@ -84,6 +86,22 @@ export function Icon({ name, size = 22, color = colors.text, strokeWidth = 2 }: 
         );
       case 'check':
         return <Polyline points="20 6 9 17 4 12" {...stroke} />;
+      case 'more':
+        // three solid dots (more-horizontal)
+        return (
+          <>
+            <Circle cx={5} cy={12} r={1.6} fill={color} stroke="none" />
+            <Circle cx={12} cy={12} r={1.6} fill={color} stroke="none" />
+            <Circle cx={19} cy={12} r={1.6} fill={color} stroke="none" />
+          </>
+        );
+      case 'x':
+        return (
+          <>
+            <Path d="M18 6 6 18" {...stroke} />
+            <Path d="m6 6 12 12" {...stroke} />
+          </>
+        );
       case 'arrow':
         return <Path d="M5 12h14M12 5l7 7-7 7" {...stroke} />;
       case 'utensils':
