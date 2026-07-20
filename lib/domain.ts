@@ -215,6 +215,78 @@ export function cycleStats(state: DomainState, kidId: string) {
   };
 }
 
+export interface DayGroupItem {
+  chore: Chore;
+  iso: string;
+  checked: boolean;
+  isDone: boolean; // today + done → line-through
+  editable: boolean; // today (Current) or any day (Previous)
+  isToday: boolean;
+  showPay: boolean;
+  valueLabel: string;
+}
+export interface DayGroup {
+  label: string;
+  items: DayGroupItem[];
+}
+
+/**
+ * Chores grouped by day for a kid.
+ *  - mode 'current':  today → payday, only today is editable (future is preview).
+ *  - mode 'previous': last 30 days (most-recent first), every day editable.
+ * `filter` is 'all' | 'allowance' | 'perChore'.
+ */
+export function kidDayGroups(
+  state: DomainState,
+  kidId: string,
+  filter: 'all' | 'allowance' | 'perChore',
+  mode: 'current' | 'previous'
+): DayGroup[] {
+  const isPrevious = mode === 'previous';
+  const start = isPrevious ? TODAY - 30 * DAY : TODAY;
+  const end = isPrevious ? TODAY - DAY : Math.max(nextPayoutTarget(state), TODAY);
+  const step = isPrevious ? -DAY : DAY;
+  const from = isPrevious ? end : start;
+  const to = isPrevious ? start : end;
+  const groups: DayGroup[] = [];
+  for (let t = from; isPrevious ? t >= to : t <= to; t += step) {
+    const d = new Date(t);
+    const jsDay = d.getUTCDay();
+    const diff = Math.round((t - TODAY) / DAY);
+    const iso = isoOf(t);
+    const label =
+      (diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday' : WEEKDAYS[jsDay]) +
+      ', ' +
+      MONTHS[d.getUTCMonth()] +
+      ' ' +
+      d.getUTCDate();
+    const items: DayGroupItem[] = state.chores
+      .filter((c) => c.kid === kidId && c.active !== false)
+      .filter((c) => {
+        const pt = c.paymentType || 'perChore';
+        if (filter === 'allowance' && pt !== 'allowance') return false;
+        if (filter === 'perChore' && pt !== 'perChore') return false;
+        return occursOn(c, t);
+      })
+      .map((c) => {
+        const isToday = diff === 0 && !isPrevious;
+        const checked = isToday ? c.status !== 'todo' : !!(c.completions && c.completions[iso]);
+        return {
+          chore: c,
+          iso,
+          checked,
+          isDone: isToday && c.status === 'done',
+          editable: isToday || isPrevious,
+          isToday,
+          showPay: (c.paymentType || 'perChore') === 'perChore',
+          valueLabel: valueLabel(c, state.currency),
+        };
+      });
+    if (items.length) groups.push({ label, items });
+  }
+  return groups;
+}
+
 export function payFreqLabel(state: DomainState) {
   return state.payFreq === 'Weekly'
     ? 'every ' + DAYS_MED[state.payDay]

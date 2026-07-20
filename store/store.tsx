@@ -75,6 +75,9 @@ interface StoreValue extends DomainState {
   showToast: (msg: string) => void;
   approve: (id: number) => void;
   redo: (id: number) => void;
+  markDone: (id: number) => void;
+  uncheckChore: (id: number) => void;
+  toggleCompletion: (id: number, iso: string) => void;
   addChore: (d: ChoreDraft) => void;
   updateChore: (id: number, d: ChoreDraft) => void;
   deleteChore: (id: number) => void;
@@ -145,6 +148,47 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     [state.chores, kidById, showToast]
   );
+
+  // Check off a chore for today: pays out instantly or sends it for review.
+  const markDone = useCallback(
+    (id: number) => {
+      const c = state.chores.find((x) => x.id === id);
+      if (!c || c.status !== 'todo') return;
+      const kid = kidById(c.kid);
+      if (!kid) return;
+      const isAllowance = c.paymentType === 'allowance';
+      const instant = isAllowance ? !c.reviewRequired : !state.approvalRequired;
+      setState((s) => ({ ...s, chores: s.chores.map((x) => (x.id === id ? { ...x, status: instant ? 'done' : 'pending' } : x)) }));
+      if (instant) {
+        pay(c.kid, c.value);
+        setState((s) => ({
+          ...s,
+          activity: [{ text: kid.name + ' finished “' + c.title + '”', amt: '+' + fmt(c.value, s.currency), time: 'Just now' }, ...s.activity],
+        }));
+        showToast(kid.name + ' finished “' + c.title + '” — ' + fmt(c.value, state.currency) + ' paid automatically');
+      } else {
+        showToast(kid.name + ' finished “' + c.title + '” — ' + fmt(c.value, state.currency) + ' waiting for your OK');
+      }
+    },
+    [state.chores, state.approvalRequired, state.currency, kidById, pay, showToast]
+  );
+
+  const uncheckChore = useCallback((id: number) => {
+    setState((s) => ({ ...s, chores: s.chores.map((x) => (x.id === id ? { ...x, status: 'todo' } : x)) }));
+  }, []);
+
+  // Toggle a past-day completion record (history editing on the Previous tab).
+  const toggleCompletion = useCallback((id: number, iso: string) => {
+    setState((s) => ({
+      ...s,
+      chores: s.chores.map((x) => {
+        if (x.id !== id) return x;
+        const completions = { ...(x.completions || {}) };
+        completions[iso] = !completions[iso];
+        return { ...x, completions };
+      }),
+    }));
+  }, []);
 
   const draftToShared = (d: ChoreDraft) => ({
     value: +d.value.toFixed(2),
@@ -291,6 +335,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       showToast,
       approve,
       redo,
+      markDone,
+      uncheckChore,
+      toggleCompletion,
       addChore,
       updateChore,
       deleteChore,
@@ -300,7 +347,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       updateFamily,
       removeFamily,
     }),
-    [state, toastMsg, showToast, approve, redo, addChore, updateChore, deleteChore, setKidLimit, setPay, addFamily, updateFamily, removeFamily]
+    [state, toastMsg, showToast, approve, redo, markDone, uncheckChore, toggleCompletion, addChore, updateChore, deleteChore, setKidLimit, setPay, addFamily, updateFamily, removeFamily]
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

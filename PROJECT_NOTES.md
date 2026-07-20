@@ -34,13 +34,16 @@ Split from the prototype's single component: **domain data lives in the store**;
   (repeat→freq→days, payment type→value chips); live `disabled` validation.
 - Payday: allowance limits (stepper + input), payout schedule, pay-cycle bars.
 - Family: sorted member list, add/edit form, remove-confirm dialog.
+- Chores → Manage / Current / Previous sub-tabs. Current (today→payday, only
+  today checkable) and Previous (last 30 days, fully editable) run off
+  `kidDayGroups`; check-off uses markDone / uncheckChore / toggleCompletion.
 
 ## Deferred / next
 
 - **Kid iPad app** (the `showIpad` half of the prototype): Today two-column
   checklist, Reward store, Stats, chore-detail modal, confetti, marketplace claim.
-- **Chores → Current / Previous** day-grouped views (`kidDayGroups`) — the
-  parent-facing "Manage" tab is done; these day previews are still stubs.
+  (Note: `kidDayGroups` + the check-off actions are already ported — ~70% of the
+  kid app's core logic is in place.)
 - **Photo upload** for family members (the prototype's `image-slot`) — native
   concern; currently an initial-based avatar.
 - **Persistence** (state resets on reload) and the **cloud backend** the brief
