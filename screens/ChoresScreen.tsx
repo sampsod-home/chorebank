@@ -7,8 +7,6 @@ import { ChoreForm } from './chores/ChoreForm';
 import { ChoreDayGroups } from './chores/ChoreDayGroups';
 import { FilterSheet } from './chores/FilterSheet';
 import { ConfirmDialog } from '../components/Dialog';
-import { IconButton } from '../components/ui';
-import { Icon } from '../components/Icon';
 
 type SubTab = 'manage' | 'status';
 type Filter = 'all' | 'allowance' | 'perChore';
@@ -58,12 +56,6 @@ export function ChoresScreen() {
             </Pressable>
           );
         })}
-        <View style={{ flex: 1 }} />
-        {subTab === 'status' && (
-          <IconButton onPress={() => setFilterOpen(true)} accessibilityLabel="Filters">
-            <Icon name="filter" size={18} color={colors.text} />
-          </IconButton>
-        )}
       </View>
 
       {subTab === 'manage' ? (
@@ -79,7 +71,7 @@ export function ChoresScreen() {
           onDelete={(id) => setConfirmId(id)}
         />
       ) : (
-        <ChoreDayGroups mode={mode} kidId={dayKid} filter={filter} />
+        <ChoreDayGroups mode={mode} kidId={dayKid} filter={filter} onOpenFilter={() => setFilterOpen(true)} />
       )}
 
       <FilterSheet

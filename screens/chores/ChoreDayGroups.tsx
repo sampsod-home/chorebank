@@ -1,13 +1,24 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, space } from '../../theme';
+import { colors, radius, space } from '../../theme';
 import { useStore } from '../../store/store';
 import { DayGroupItem, kidDayGroups } from '../../lib/domain';
+import { Icon } from '../../components/Icon';
 import { Tag, Txt } from '../../components/ui';
 
 type Filter = 'all' | 'allowance' | 'perChore';
 
-export function ChoreDayGroups({ mode, kidId, filter }: { mode: 'current' | 'previous'; kidId: string; filter: Filter }) {
+export function ChoreDayGroups({
+  mode,
+  kidId,
+  filter,
+  onOpenFilter,
+}: {
+  mode: 'current' | 'previous';
+  kidId: string;
+  filter: Filter;
+  onOpenFilter: () => void;
+}) {
   const store = useStore();
   const groups = kidDayGroups(store, kidId, filter, mode);
   const kidName = store.kids.find((k) => k.id === kidId)?.name ?? '—';
@@ -26,6 +37,19 @@ export function ChoreDayGroups({ mode, kidId, filter }: { mode: 'current' | 'pre
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.head}>
+        <Txt variant="h4" style={{ flex: 1 }}>
+          Chores
+        </Txt>
+        <Pressable
+          onPress={onOpenFilter}
+          accessibilityRole="button"
+          accessibilityLabel="Filters"
+          style={({ pressed }) => [styles.filterBtn, pressed && { backgroundColor: colors.overlay07 }]}
+        >
+          <Icon name="filter" size={18} color={colors.text} />
+        </Pressable>
+      </View>
       <Text style={styles.summary}>{summary}</Text>
 
       {groups.length === 0 ? (
@@ -69,7 +93,9 @@ export function ChoreDayGroups({ mode, kidId, filter }: { mode: 'current' | 'pre
 
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: space[4] + 4, paddingTop: space[3] },
+  content: { paddingHorizontal: space[4] + 4, paddingTop: space[4] },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
+  filterBtn: { width: 30, height: 30, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   summary: { fontFamily: 'Archivo_600SemiBold', fontSize: 12.5, color: colors.neutral[600], marginBottom: 14 },
   groupLabel: { fontFamily: 'Archivo_800ExtraBold', fontSize: 13, letterSpacing: 1, textTransform: 'uppercase', color: colors.text, marginBottom: 8 },
   groupCard: { backgroundColor: colors.surface, borderRadius: 14, overflow: 'hidden' },
