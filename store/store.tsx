@@ -46,6 +46,7 @@ export const REWARDS: Reward[] = [
 export interface ChoreDraft {
   title: string;
   desc: string;
+  icon: string | null; // explicit icon; null = auto-derive from title
   value: number;
   paymentType: 'allowance' | 'perChore';
   reviewRequired: boolean;
@@ -160,6 +161,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     startDate: d.startDate,
     biweekly: d.biweekly,
     desc: d.desc.trim(),
+    icon: d.icon || undefined,
   });
 
   const addChore = useCallback(

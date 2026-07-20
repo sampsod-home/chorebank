@@ -62,6 +62,28 @@ export function choreIcon(title: string) {
   return { name: hit ? hit[1] : 'star', bgKey: hit ? hit[2] : 'var-neutral-800' };
 }
 
+// Icons offered in the chore form's picker (same set the title-matcher uses).
+export const CHORE_ICONS: string[] = ['utensils', 'trash', 'shirt', 'book', 'car', 'droplet', 'paw', 'leaf', 'sparkles', 'star'];
+
+const ICON_BG: Record<string, string> = {
+  utensils: 'var-neutral-800',
+  trash: 'var-neutral-700',
+  shirt: 'var-accent-700',
+  book: 'var-neutral-800',
+  car: 'var-accent-600',
+  droplet: 'var-neutral-700',
+  paw: 'var-accent-700',
+  leaf: 'var-neutral-800',
+  sparkles: 'var-accent-600',
+  star: 'var-neutral-800',
+};
+
+/** A chore's tile icon: explicit `icon` if set, otherwise derived from the title. */
+export function iconForChore(c: Chore) {
+  if (c.icon) return { name: c.icon, bgKey: ICON_BG[c.icon] ?? 'var-neutral-800' };
+  return choreIcon(c.title);
+}
+
 export function schedule(c: Chore) {
   if (!c.recurring) {
     const t = (c.times || []).join('/');

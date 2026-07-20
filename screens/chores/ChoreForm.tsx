@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, space } from '../../theme';
 import { useStore, ChoreDraft } from '../../store/store';
 import { Chore } from '../../lib/types';
-import { DAYS, fmt, formatDate, planned } from '../../lib/domain';
+import { CHORE_ICONS, choreIcon, DAYS, fmt, formatDate, planned } from '../../lib/domain';
 import { Button, Chip, Field, Hr, IconButton, Input, SegBar, Toggle, Txt } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 
@@ -18,6 +18,7 @@ function initFrom(c: Chore | null, allKidIds: string[]) {
       who: allKidIds,
       title: '',
       desc: '',
+      icon: null as string | null,
       active: true,
       repeatOn: false,
       freq: 'Daily' as Freq,
@@ -40,6 +41,7 @@ function initFrom(c: Chore | null, allKidIds: string[]) {
     who: c.kid === 'open' ? [] : [c.kid],
     title: c.title,
     desc: c.desc || '',
+    icon: (c.icon ?? null) as string | null,
     active: c.active !== false,
     repeatOn: !!c.recurring,
     freq: (c.freq || 'Daily') as Freq,
@@ -68,6 +70,8 @@ export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: 
   const isGrabs = f.assignMode === 'grabs';
   const isAllowance = f.paymentType === 'allowance';
   const isPerChore = f.paymentType === 'perChore';
+  // Picker highlights the explicit pick, or the title-derived icon until one is chosen.
+  const effectiveIcon = f.icon ?? choreIcon(f.title).name;
 
   const pay = useMemo(() => {
     if (isAllowance) return 0;
@@ -114,6 +118,7 @@ export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: 
     const draft: ChoreDraft = {
       title: f.title,
       desc: f.desc,
+      icon: f.icon,
       value: isAllowance ? 0 : pay,
       paymentType: f.paymentType,
       reviewRequired: f.reviewRequired,
@@ -195,6 +200,28 @@ export function ChoreForm({ initial, onDone }: { initial: Chore | null; onDone: 
       </Field>
       <Field label="Chore description" style={{ marginBottom: space[4] }}>
         <Input placeholder="Enter chore description" value={f.desc} onChangeText={(v) => set('desc', v)} multiline />
+      </Field>
+
+      {/* Icon picker */}
+      <Field label="Icon" style={{ marginBottom: space[4] }}>
+        <View style={styles.iconGrid}>
+          {CHORE_ICONS.map((name) => {
+            const active = effectiveIcon === name;
+            return (
+              <Pressable
+                key={name}
+                onPress={() => set('icon', name)}
+                accessibilityRole="button"
+                style={[
+                  styles.iconPick,
+                  { backgroundColor: active ? colors.accent : colors.bg, borderColor: active ? colors.accent : colors.divider },
+                ]}
+              >
+                <Icon name={name as any} size={22} color={active ? colors.bg : colors.text} />
+              </Pressable>
+            );
+          })}
+        </View>
       </Field>
 
       {/* Active — its own small card */}
@@ -366,6 +393,8 @@ const styles = StyleSheet.create({
   kidLabel: { fontFamily: 'Archivo_800ExtraBold', fontSize: 13, color: colors.text },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 0 },
   toggleLabel: { flex: 1, fontFamily: 'Archivo_800ExtraBold', fontSize: 15, color: colors.text },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  iconPick: { width: 46, height: 46, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   activeCard: { backgroundColor: colors.surface, borderRadius: 14, paddingVertical: space[3], paddingHorizontal: space[4], marginBottom: 14 },
   schedCard: { backgroundColor: colors.surface, borderRadius: 14, padding: space[4], marginBottom: 14, gap: 14 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

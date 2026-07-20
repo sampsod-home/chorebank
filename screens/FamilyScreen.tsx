@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, space } from '../theme';
 import { useStore } from '../store/store';
-import { fmt, weekSum } from '../lib/domain';
-import { Button, Card, Chip, Field, Input, Kicker, Tag, Txt } from '../components/ui';
+import { Button, Card, Chip, Field, IconButton, Input, Kicker, Tag, Txt } from '../components/ui';
+import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Dialog';
 
 type Editing = { kind: 'parent' | 'child'; id: string } | null;
@@ -25,21 +25,12 @@ export function FamilyScreen() {
     () => [
       ...[...parents]
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map((p) => ({ id: p.id, kind: 'parent' as const, name: p.name, typeLabel: 'Parent', isChild: false, contact: [p.phone, p.email].filter(Boolean).join(' · '), weekTotal: '', balance: '' })),
+        .map((p) => ({ id: p.id, kind: 'parent' as const, name: p.name, typeLabel: 'Parent', contact: [p.phone, p.email].filter(Boolean).join(' · ') })),
       ...[...kids]
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map((k) => ({
-          id: k.id,
-          kind: 'child' as const,
-          name: k.name,
-          typeLabel: 'Child',
-          isChild: true,
-          contact: [k.phone, k.email].filter(Boolean).join(' · '),
-          weekTotal: fmt(weekSum(k), currency),
-          balance: fmt(k.balance, currency),
-        })),
+        .map((k) => ({ id: k.id, kind: 'child' as const, name: k.name, typeLabel: 'Child', contact: [k.phone, k.email].filter(Boolean).join(' · ') })),
     ],
-    [parents, kids, currency]
+    [parents, kids]
   );
 
   const openNew = () => {
@@ -78,8 +69,12 @@ export function FamilyScreen() {
     return (
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.formHead}>
-          <Txt variant="h4">{editing ? 'Edit family member' : 'Add family member'}</Txt>
-          <Button title="Cancel" variant="ghost" minHeight={32} style={{ marginLeft: 'auto' }} onPress={() => setView('list')} />
+          <Txt variant="h4" style={{ flex: 1 }}>
+            {editing ? 'Edit family member' : 'Add family member'}
+          </Txt>
+          <IconButton onPress={() => setView('list')} accessibilityLabel="Close">
+            <Icon name="x" size={20} color={colors.text} />
+          </IconButton>
         </View>
 
         <View style={styles.photoRow}>
@@ -127,7 +122,14 @@ export function FamilyScreen() {
         <Txt variant="h4" style={{ flex: 1 }}>
           Family
         </Txt>
-        <Button title="+ Add member" variant="primary" minHeight={40} onPress={openNew} />
+        <Pressable
+          onPress={openNew}
+          accessibilityRole="button"
+          accessibilityLabel="Add member"
+          style={({ pressed }) => [styles.addBtn, pressed && { backgroundColor: colors.overlay07 }]}
+        >
+          <Icon name="plus" size={17} color={colors.text} strokeWidth={2.5} />
+        </Pressable>
       </View>
 
       {members.map((m) => (
@@ -136,34 +138,23 @@ export function FamilyScreen() {
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{m.name[0]}</Text>
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, gap: 4 }}>
               <Text style={styles.memberName}>{m.name}</Text>
+              {/* -10 offsets the tag's own horizontal padding so the label text
+                  lines up with the name's first letter, not the pill edge. */}
+              <View style={{ marginLeft: -10 }}>
+                <Tag variant="neutral">{m.typeLabel}</Tag>
+              </View>
               {m.contact ? <Text style={styles.memberContact}>{m.contact}</Text> : null}
             </View>
-            <Tag variant="neutral">{m.typeLabel}</Tag>
-          </View>
-
-          {m.isChild && (
-            <View style={styles.statRow}>
-              <Text style={styles.statText}>
-                <Text style={styles.statStrong}>{m.weekTotal}</Text> this week
-              </Text>
-              <Text style={[styles.statText, { marginLeft: 'auto' }]}>
-                <Text style={styles.statStrong}>{m.balance}</Text> wallet
-              </Text>
+            <View style={{ flexDirection: 'row', gap: 2 }}>
+              <IconButton size={30} onPress={() => openEdit(m.kind, m.id)} accessibilityLabel="Edit">
+                <Icon name="edit" size={16} color={colors.text} />
+              </IconButton>
+              <IconButton size={30} onPress={() => setConfirmRemove({ kind: m.kind, id: m.id, name: m.name })} accessibilityLabel="Remove">
+                <Icon name="trash" size={16} color={colors.neutral[600]} />
+              </IconButton>
             </View>
-          )}
-
-          <View style={{ flexDirection: 'row', gap: 16 }}>
-            <Button title="Edit" variant="ghost" minHeight={32} textColor={colors.accent} onPress={() => openEdit(m.kind, m.id)} style={{ paddingHorizontal: 0 }} />
-            <Button
-              title="Remove"
-              variant="ghost"
-              minHeight={32}
-              textColor={colors.neutral[600]}
-              onPress={() => setConfirmRemove({ kind: m.kind, id: m.id, name: m.name })}
-              style={{ paddingHorizontal: 0 }}
-            />
           </View>
         </Card>
       ))}
@@ -189,7 +180,8 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: space[4] + 4, paddingTop: space[4] },
   listHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
-  formHead: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginBottom: 14 },
+  addBtn: { width: 30, height: 30, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
+  formHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
   photoRow: { flexDirection: 'row', gap: 14, marginBottom: space[4], alignItems: 'center' },
   photoCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   photoInitial: { fontFamily: 'Archivo_800ExtraBold', fontSize: 24, color: colors.textMuted },
@@ -197,7 +189,4 @@ const styles = StyleSheet.create({
   avatarText: { fontFamily: 'Archivo_800ExtraBold', fontSize: 17, color: colors.bg },
   memberName: { fontFamily: 'Archivo_800ExtraBold', fontSize: 17, color: colors.text },
   memberContact: { fontFamily: 'Archivo_400Regular', fontSize: 11, color: colors.textMuted, marginTop: 2 },
-  statRow: { flexDirection: 'row', gap: 16, borderTopWidth: 1, borderTopColor: colors.divider, paddingTop: 10 },
-  statText: { fontFamily: 'Archivo_400Regular', fontSize: 12, color: colors.text },
-  statStrong: { fontFamily: 'Archivo_800ExtraBold' },
 });

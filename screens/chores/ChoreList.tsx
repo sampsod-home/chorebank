@@ -1,11 +1,10 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, space } from '../../theme';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { colors, radius, space } from '../../theme';
 import { useStore } from '../../store/store';
-import { choreIcon, schedule, valueLabel } from '../../lib/domain';
+import { iconForChore, schedule, valueLabel } from '../../lib/domain';
 import { Icon, iconBgColor } from '../../components/Icon';
 import { IconButton, Tag, Txt } from '../../components/ui';
-import { KebabMenu } from '../../components/Menu';
 
 export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEdit: (id: number) => void; onDelete: (id: number) => void }) {
   const { chores, kids, currency } = useStore();
@@ -16,9 +15,14 @@ export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEd
         <Txt variant="h4" style={{ flex: 1 }}>
           Chores
         </Txt>
-        <IconButton onPress={onNew} accessibilityLabel="New chore">
-          <Icon name="plus" size={18} color={colors.text} strokeWidth={2.5} />
-        </IconButton>
+        <Pressable
+          onPress={onNew}
+          accessibilityRole="button"
+          accessibilityLabel="New chore"
+          style={({ pressed }) => [styles.addBtn, pressed && { backgroundColor: colors.overlay07 }]}
+        >
+          <Icon name="plus" size={17} color={colors.text} strokeWidth={2.5} />
+        </Pressable>
       </View>
 
       {chores.length === 0 ? (
@@ -27,7 +31,7 @@ export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEd
         </Txt>
       ) : (
         chores.map((c) => {
-          const ic = choreIcon(c.title);
+          const ic = iconForChore(c);
           const kidLabel = c.kid === 'open' ? 'Marketplace' : kids.find((k) => k.id === c.kid)?.name ?? '—';
           const inactive = c.active === false;
           return (
@@ -45,15 +49,15 @@ export function ChoreList({ onNew, onEdit, onDelete }: { onNew: () => void; onEd
                 <Text style={styles.sub}>
                   {kidLabel} · {schedule(c)}
                 </Text>
-              </View>
-              <View style={styles.rightCol}>
                 <Text style={styles.value}>{valueLabel(c, currency)}</Text>
-                <KebabMenu
-                  items={[
-                    { label: 'Edit', onPress: () => onEdit(c.id) },
-                    { label: 'Remove', destructive: true, onPress: () => onDelete(c.id) },
-                  ]}
-                />
+              </View>
+              <View style={styles.rightIcons}>
+                <IconButton size={30} onPress={() => onEdit(c.id)} accessibilityLabel="Edit">
+                  <Icon name="edit" size={16} color={colors.text} />
+                </IconButton>
+                <IconButton size={30} onPress={() => onDelete(c.id)} accessibilityLabel="Remove">
+                  <Icon name="trash" size={16} color={colors.neutral[600]} />
+                </IconButton>
               </View>
             </View>
           );
@@ -68,9 +72,10 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: space[4] + 4, paddingTop: space[4] },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+  addBtn: { width: 30, height: 30, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   row: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 10,
     paddingVertical: 10,
     paddingLeft: 10,
@@ -80,10 +85,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   iconTile: { width: 40, height: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  mid: { flex: 1, gap: 2, paddingTop: 1 },
+  mid: { flex: 1, gap: 2 },
   titleLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { flex: 1, fontFamily: 'Archivo_600SemiBold', fontSize: 14, color: colors.text },
-  rightCol: { alignItems: 'flex-end', gap: 2, paddingTop: 1 },
-  value: { fontFamily: 'Archivo_800ExtraBold', fontSize: 15, color: colors.accentRamp[700] },
+  rightIcons: { flexDirection: 'row', gap: 2 },
+  value: { fontFamily: 'Archivo_800ExtraBold', fontSize: 15, color: colors.accentRamp[700], marginTop: 1 },
   sub: { fontFamily: 'Archivo_400Regular', fontSize: 11, color: colors.neutral[600] },
 });

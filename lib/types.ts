@@ -34,6 +34,7 @@ export interface Chore {
   freq?: Freq;
   status: ChoreStatus;
   desc?: string;
+  icon?: string; // explicit icon name; falls back to title-derived when unset
   steps?: string[];
   times?: string[]; // Morning/Afternoon/Evening
   startDate?: string; // ISO yyyy-mm-dd
