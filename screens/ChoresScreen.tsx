@@ -5,12 +5,10 @@ import { useStore } from '../store/store';
 import { ChoreList } from './chores/ChoreList';
 import { ChoreForm } from './chores/ChoreForm';
 import { ChoreDayGroups } from './chores/ChoreDayGroups';
-import { FilterSheet } from './chores/FilterSheet';
+import { useStatusFilter } from './chores/StatusFilterProvider';
 import { ConfirmDialog } from '../components/Dialog';
 
 type SubTab = 'manage' | 'status';
-type Filter = 'all' | 'allowance' | 'perChore';
-type Mode = 'current' | 'previous';
 const SUBTABS: [SubTab, string][] = [
   ['manage', 'Manage'],
   ['status', 'Status'],
@@ -18,15 +16,11 @@ const SUBTABS: [SubTab, string][] = [
 
 export function ChoresScreen() {
   const store = useStore();
+  const status = useStatusFilter();
   const [subTab, setSubTab] = useState<SubTab>('manage');
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
-  // Status filters (live in the bottom sheet)
-  const [dayKid, setDayKid] = useState<string>(() => store.kids[0]?.id ?? '');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [mode, setMode] = useState<Mode>('current');
-  const [filterOpen, setFilterOpen] = useState(false);
 
   const editingChore = editingId != null ? store.chores.find((c) => c.id === editingId) ?? null : null;
   const confirmChore = confirmId != null ? store.chores.find((c) => c.id === confirmId) : null;
@@ -71,20 +65,8 @@ export function ChoresScreen() {
           onDelete={(id) => setConfirmId(id)}
         />
       ) : (
-        <ChoreDayGroups mode={mode} kidId={dayKid} filter={filter} onOpenFilter={() => setFilterOpen(true)} />
+        <ChoreDayGroups mode={status.mode} kidId={status.kidId} filter={status.filter} onOpenFilter={status.open} />
       )}
-
-      <FilterSheet
-        visible={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        kids={store.kids}
-        kidId={dayKid}
-        onKid={setDayKid}
-        mode={mode}
-        onMode={setMode}
-        filter={filter}
-        onFilter={setFilter}
-      />
 
       <ConfirmDialog
         visible={confirmId != null}

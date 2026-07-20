@@ -13,6 +13,7 @@ import {
 
 import { colors, radius, shadow } from './theme';
 import { StoreProvider } from './store/store';
+import { StatusFilterProvider } from './screens/chores/StatusFilterProvider';
 import { TopBar } from './components/TopBar';
 import { TabBar } from './components/TabBar';
 import { Toast } from './components/Toast';
@@ -62,18 +63,20 @@ export default function App() {
       <StoreProvider>
         <StatusBar style="dark" />
         <DeviceFrame>
-          <NavigationContainer theme={navTheme}>
-            <TopBar />
-            <Tab.Navigator
-              screenOptions={{ headerShown: false }}
-              tabBar={(props) => <TabBar {...props} />}
-            >
-              <Tab.Screen name="Home" component={HomeScreen} />
-              <Tab.Screen name="Chores" component={ChoresScreen} />
-              <Tab.Screen name="Payday" component={PaydayScreen} />
-              <Tab.Screen name="Family" component={FamilyScreen} />
-            </Tab.Navigator>
-          </NavigationContainer>
+          <StatusFilterProvider>
+            <NavigationContainer theme={navTheme}>
+              <TopBar />
+              <Tab.Navigator
+                screenOptions={{ headerShown: false }}
+                tabBar={(props) => <TabBar {...props} />}
+              >
+                <Tab.Screen name="Home" component={HomeScreen} />
+                <Tab.Screen name="Chores" component={ChoresScreen} />
+                <Tab.Screen name="Payday" component={PaydayScreen} />
+                <Tab.Screen name="Family" component={FamilyScreen} />
+              </Tab.Navigator>
+            </NavigationContainer>
+          </StatusFilterProvider>
           <Toast />
         </DeviceFrame>
       </StoreProvider>
