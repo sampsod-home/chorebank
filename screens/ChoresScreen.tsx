@@ -5,14 +5,17 @@ import { useStore } from '../store/store';
 import { ChoreList } from './chores/ChoreList';
 import { ChoreForm } from './chores/ChoreForm';
 import { ChoreDayGroups } from './chores/ChoreDayGroups';
+import { FilterSheet } from './chores/FilterSheet';
 import { ConfirmDialog } from '../components/Dialog';
+import { IconButton } from '../components/ui';
+import { Icon } from '../components/Icon';
 
-type SubTab = 'manage' | 'current' | 'previous';
+type SubTab = 'manage' | 'status';
 type Filter = 'all' | 'allowance' | 'perChore';
+type Mode = 'current' | 'previous';
 const SUBTABS: [SubTab, string][] = [
   ['manage', 'Manage'],
-  ['current', 'Current'],
-  ['previous', 'Previous'],
+  ['status', 'Status'],
 ];
 
 export function ChoresScreen() {
@@ -21,9 +24,11 @@ export function ChoresScreen() {
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
-  // Shared across Current/Previous
+  // Status filters (live in the bottom sheet)
   const [dayKid, setDayKid] = useState<string>(() => store.kids[0]?.id ?? '');
   const [filter, setFilter] = useState<Filter>('all');
+  const [mode, setMode] = useState<Mode>('current');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const editingChore = editingId != null ? store.chores.find((c) => c.id === editingId) ?? null : null;
   const confirmChore = confirmId != null ? store.chores.find((c) => c.id === confirmId) : null;
@@ -53,6 +58,12 @@ export function ChoresScreen() {
             </Pressable>
           );
         })}
+        <View style={{ flex: 1 }} />
+        {subTab === 'status' && (
+          <IconButton onPress={() => setFilterOpen(true)} accessibilityLabel="Filters">
+            <Icon name="filter" size={18} color={colors.text} />
+          </IconButton>
+        )}
       </View>
 
       {subTab === 'manage' ? (
@@ -68,8 +79,20 @@ export function ChoresScreen() {
           onDelete={(id) => setConfirmId(id)}
         />
       ) : (
-        <ChoreDayGroups mode={subTab} kidId={dayKid} filter={filter} onKid={setDayKid} onFilter={setFilter} />
+        <ChoreDayGroups mode={mode} kidId={dayKid} filter={filter} />
       )}
+
+      <FilterSheet
+        visible={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        kids={store.kids}
+        kidId={dayKid}
+        onKid={setDayKid}
+        mode={mode}
+        onMode={setMode}
+        filter={filter}
+        onFilter={setFilter}
+      />
 
       <ConfirmDialog
         visible={confirmId != null}
@@ -88,7 +111,7 @@ export function ChoresScreen() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: { flexDirection: 'row', gap: 18, paddingHorizontal: space[4] + 4, paddingTop: space[4], marginBottom: -4 },
+  tabBar: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingHorizontal: space[4] + 4, paddingTop: space[4], marginBottom: -4 },
   tab: { paddingBottom: 8 },
   tabLabel: { fontFamily: 'Archivo_800ExtraBold', fontSize: 14 },
   tabRule: { height: 3, marginTop: 6, borderRadius: 2 },

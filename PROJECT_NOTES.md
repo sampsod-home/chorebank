@@ -34,9 +34,10 @@ Split from the prototype's single component: **domain data lives in the store**;
   (repeat→freq→days, payment type→value chips); live `disabled` validation.
 - Payday: allowance limits (stepper + input), payout schedule, pay-cycle bars.
 - Family: sorted member list, add/edit form, remove-confirm dialog.
-- Chores → Manage / Current / Previous sub-tabs. Current (today→payday, only
-  today checkable) and Previous (last 30 days, fully editable) run off
-  `kidDayGroups`; check-off uses markDone / uncheckChore / toggleCompletion.
+- Chores → Manage / Status sub-tabs. Status runs off `kidDayGroups`; a
+  bottom-sheet (`FilterSheet`) filters by kid, range (Upcoming = today→payday
+  with only today checkable / Past = last 30 days, all editable), and payment
+  type. Check-off uses markDone / uncheckChore / toggleCompletion.
 
 ## Deferred / next
 

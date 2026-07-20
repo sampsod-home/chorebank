@@ -13,6 +13,8 @@ export type IconName =
   | 'check'
   | 'more'
   | 'x'
+  | 'undo'
+  | 'filter'
   | 'arrow'
   | 'utensils'
   | 'shirt'
@@ -102,6 +104,16 @@ export function Icon({ name, size = 22, color = colors.text, strokeWidth = 2 }: 
             <Path d="m6 6 12 12" {...stroke} />
           </>
         );
+      case 'undo':
+        // rotate-ccw — reads as "send back / redo"
+        return (
+          <>
+            <Path d="M3 12a9 9 0 1 0 3-6.7L3 8" {...stroke} />
+            <Path d="M3 3v5h5" {...stroke} />
+          </>
+        );
+      case 'filter':
+        return <Polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" {...stroke} />;
       case 'arrow':
         return <Path d="M5 12h14M12 5l7 7-7 7" {...stroke} />;
       case 'utensils':
